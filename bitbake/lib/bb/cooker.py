@@ -2146,7 +2146,7 @@ class CookerParser(object):
             def init():
                 signal.signal(signal.SIGTERM, signal.SIG_DFL)
                 signal.signal(signal.SIGHUP, signal.SIG_DFL)
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
+                signal.signal(signal.SIGINT, signal.default_int_handler)
                 bb.utils.set_process_name(multiprocessing.current_process().name)
                 multiprocessing.util.Finalize(None, bb.codeparser.parser_cache_save, exitpriority=1)
                 multiprocessing.util.Finalize(None, bb.fetch.fetcher_parse_save, exitpriority=1)
@@ -2193,6 +2193,9 @@ class CookerParser(object):
                self.result_queue.get(timeout=0.25)
             except queue.Empty:
                 break
+
+        for process in self.processes:
+            os.kill(process.pid, signal.SIGINT)
 
         for process in self.processes:
             if force:
