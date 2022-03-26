@@ -2198,8 +2198,10 @@ class CookerParser(object):
             if force:
                 process.join(.1)
                 process.terminate()
-            else:
-                process.join()
+            process.join()
+            # Added in 3.7, cleans up zombies
+            if hasattr(process, "close"):
+                process.close()
 
         self.parser_quit.close()
         # Allow data left in the cancel queue to be discarded
